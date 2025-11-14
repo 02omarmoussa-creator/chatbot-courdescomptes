@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistant Cour des Comptes</title>
+    <title>Chatbot Widget - Cour des Comptes</title>
     <style>
         * {
             margin: 0;
@@ -13,47 +13,160 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-            height: 100vh;
-            overflow: hidden;
         }
 
-        .chat-container {
-            width: 100%;
-            height: 100vh;
+        /* ============================================ */
+        /* BOUTON FLOTTANT */
+        /* ============================================ */
+        .chatbot-toggler {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(52, 152, 219, 0.4);
+            transition: all 0.3s ease;
+            z-index: 9999;
+        }
+
+        .chatbot-toggler:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.6);
+        }
+
+        .chatbot-toggler span {
+            color: white;
+            font-size: 28px;
+            position: absolute;
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-toggler .close-icon {
+            opacity: 0;
+            transform: rotate(-90deg);
+        }
+
+        body.show-chatbot .chatbot-toggler .chat-icon {
+            opacity: 0;
+            transform: rotate(90deg);
+        }
+
+        body.show-chatbot .chatbot-toggler .close-icon {
+            opacity: 1;
+            transform: rotate(0deg);
+        }
+
+        /* Badge de notification */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            animation: pulse-badge 2s infinite;
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* ============================================ */
+        /* FENÊTRE DE CHAT */
+        /* ============================================ */
+        .chatbot-container {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 420px;
+            max-width: calc(100vw - 60px);
+            height: 550px;
             background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            transform: scale(0) translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 9998;
             display: flex;
             flex-direction: column;
         }
 
+        body.show-chatbot .chatbot-container {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        /* En-tête */
         .chat-header {
             background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
             color: white;
-            padding: 15px;
-            text-align: center;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             flex-shrink: 0;
         }
 
-        .chat-header h1 {
-            font-size: 20px;
-            margin-bottom: 8px;
+        .chat-header-info {
+            flex: 1;
+        }
+
+        .chat-header h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .chat-header .status {
+            font-size: 12px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #27ae60;
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
         .language-selector {
             display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 8px;
+            gap: 5px;
         }
 
         .lang-btn {
-            padding: 6px 12px;
-            border: 2px solid white;
+            padding: 4px 8px;
+            border: 1px solid white;
             background: transparent;
             color: white;
-            border-radius: 15px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 10px;
             transition: all 0.3s;
         }
 
@@ -62,15 +175,25 @@
             color: #2c3e50;
         }
 
+        /* Messages */
         .chat-messages {
             flex: 1;
             overflow-y: auto;
-            padding: 15px;
-            background: #f5f5f5;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 10px;
         }
 
         .message {
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             display: flex;
             align-items: flex-start;
             animation: slideIn 0.3s ease;
@@ -91,103 +214,71 @@
             flex-direction: row-reverse;
         }
 
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .message.bot .message-avatar {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #ecf0f1;
+        }
+
         .message-content {
             max-width: 75%;
-            padding: 10px 15px;
+            padding: 12px 16px;
             border-radius: 15px;
             word-wrap: break-word;
             font-size: 14px;
-            line-height: 1.4;
+            line-height: 1.5;
+            margin: 0 10px;
         }
 
         .message.bot .message-content {
             background: white;
             color: #333;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-bottom-left-radius: 5px;
         }
 
         .message.user .message-content {
             background: #3498db;
             color: white;
+            border-bottom-right-radius: 5px;
         }
 
-        .chat-input-area {
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #e0e0e0;
-            flex-shrink: 0;
+        .message-time {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 5px;
+            display: block;
         }
 
-        .input-controls {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        #userInput {
-            flex: 1;
-            padding: 10px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 20px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        #userInput:focus {
-            border-color: #3498db;
-        }
-
-        .btn-send {
-            padding: 10px 18px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .btn-send:hover {
-            background: #2980b9;
-        }
-
-        .btn-voice {
-            background: #27ae60;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-voice.recording {
-            background: #e74c3c;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
+        /* Indicateur de frappe */
         .typing-indicator {
             display: none;
-            padding: 10px 15px;
+            padding: 12px 16px;
             background: white;
             border-radius: 15px;
             width: fit-content;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-left: 42px;
         }
 
         .typing-indicator span {
             display: inline-block;
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
             background: #3498db;
             border-radius: 50%;
             margin: 0 2px;
@@ -199,29 +290,156 @@
 
         @keyframes typing {
             0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-8px); }
+            30% { transform: translateY(-10px); }
         }
 
+        /* Zone de saisie */
+        .chat-input-area {
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            flex-shrink: 0;
+        }
+
+        .input-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.3s;
+            font-family: inherit;
+        }
+
+        #userInput:focus {
+            border-color: #3498db;
+        }
+
+        .btn-send, .btn-voice {
+            width: 42px;
+            height: 42px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-size: 18px;
+        }
+
+        .btn-send {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-send:hover {
+            background: #2980b9;
+            transform: scale(1.1);
+        }
+
+        .btn-voice {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-voice:hover {
+            background: #229954;
+        }
+
+        .btn-voice.recording {
+            background: #e74c3c;
+            animation: pulse-recording 1s infinite;
+        }
+
+        @keyframes pulse-recording {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        /* Lien vers le cours */
         .course-link {
             display: inline-block;
             margin-top: 8px;
-            padding: 8px 12px;
+            padding: 6px 12px;
             background: #3498db;
             color: white;
             text-decoration: none;
             border-radius: 8px;
             font-size: 12px;
+            transition: background 0.3s;
         }
 
         .course-link:hover {
             background: #2980b9;
         }
+
+        /* Suggestions rapides */
+        .quick-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .suggestion-btn {
+            padding: 8px 12px;
+            background: #ecf0f1;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            color: #2c3e50;
+        }
+
+        .suggestion-btn:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .chatbot-container {
+                width: 100%;
+                height: 100%;
+                bottom: 0;
+                right: 0;
+                border-radius: 0;
+            }
+
+            .chatbot-toggler {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="chat-container">
+    <!-- Bouton flottant -->
+    <button class="chatbot-toggler" id="chatbotToggler">
+        <span class="chat-icon">💬</span>
+        <span class="close-icon">✕</span>
+        <span class="notification-badge" id="notificationBadge" style="display: none;">1</span>
+    </button>
+
+    <!-- Fenêtre de chat -->
+    <div class="chatbot-container">
         <div class="chat-header">
-            <h1 id="headerTitle">Assistant Formation - Cour des Comptes</h1>
+            <div class="chat-header-info">
+                <h2 id="chatTitle">Assistant Formation</h2>
+                <div class="status">
+                    <span class="status-dot"></span>
+                    <span id="statusText">En ligne</span>
+                </div>
+            </div>
             <div class="language-selector">
                 <button class="lang-btn active" data-lang="fr" onclick="switchLanguage('fr')">FR</button>
                 <button class="lang-btn" data-lang="ar" onclick="switchLanguage('ar')">AR</button>
@@ -238,8 +456,8 @@
         <div class="chat-input-area">
             <div class="input-controls">
                 <input type="text" id="userInput" placeholder="Posez votre question..." />
-                <button class="btn-send" onclick="sendMessage()">📤</button>
-                <button class="btn-voice" id="voiceBtn" onclick="toggleVoiceRecognition()">🎤</button>
+                <button class="btn-send" onclick="sendMessage()" title="Envoyer">📤</button>
+                <button class="btn-voice" id="voiceBtn" onclick="toggleVoiceRecognition()" title="Microphone">🎤</button>
             </div>
         </div>
     </div>
@@ -254,14 +472,15 @@
         };
 
         // ============================================
-        // BASE DE CONNAISSANCES LOCALE
+        // BASE DE CONNAISSANCES
         // ============================================
         const KNOWLEDGE_BASE = {
             fr: {
+                suggestions: ['Programme du cours', 'Comment m\'inscrire ?', 'Certificat', 'Support'],
                 sections: [
                     {
                         keywords: ['programme', 'cours', 'contenu', 'modules'],
-                        response: "📚 Le cours comprend plusieurs modules de formation destinés aux officiels de la Cour des Comptes. Pour accéder au contenu complet du cours, veuillez visiter la plateforme.",
+                        response: "📚 Le cours comprend plusieurs modules de formation destinés aux officiels de la Cour des Comptes. Pour accéder au contenu complet, consultez la plateforme.",
                         showLink: true
                     },
                     {
@@ -271,12 +490,12 @@
                     },
                     {
                         keywords: ['inscription', 'comment', 'accès', 'connexion'],
-                        response: "🔐 Pour vous inscrire ou accéder au cours, veuillez contacter l'administrateur de la plateforme de formation de la Cour des Comptes.",
+                        response: "🔐 Pour vous inscrire ou accéder au cours, veuillez contacter l'administrateur de la plateforme de formation.",
                         showLink: true
                     },
                     {
                         keywords: ['durée', 'temps', 'période'],
-                        response: "⏱️ La durée du cours dépend du module spécifique. Veuillez consulter la page du cours pour les détails.",
+                        response: "⏱️ La durée du cours dépend du module spécifique. Consultez la page du cours pour les détails.",
                         showLink: true
                     },
                     {
@@ -285,77 +504,109 @@
                         showLink: false
                     },
                     {
-                        keywords: ['aide', 'support', 'contact'],
-                        response: "💬 Pour toute question ou assistance, veuillez contacter l'équipe de formation de la Cour des Comptes via la plateforme.",
+                        keywords: ['aide', 'support', 'contact', 'problème'],
+                        response: "💬 Pour toute question ou assistance, contactez l'équipe de formation via la plateforme.",
                         showLink: true
+                    },
+                    {
+                        keywords: ['bonjour', 'salut', 'hello', 'hey'],
+                        response: "👋 Bonjour ! Je suis votre assistant pour la formation de la Cour des Comptes. Comment puis-je vous aider ?",
+                        showLink: false
+                    },
+                    {
+                        keywords: ['merci', 'remercie'],
+                        response: "😊 De rien ! N'hésitez pas si vous avez d'autres questions.",
+                        showLink: false
                     }
                 ]
             },
             ar: {
+                suggestions: ['برنامج الدرس', 'كيفية التسجيل؟', 'الشهادة', 'الدعم'],
                 sections: [
                     {
                         keywords: ['برنامج', 'محتوى', 'دروس', 'وحدات'],
-                        response: "📚 يتضمن الدرس عدة وحدات تدريبية مخصصة لموظفي دائرة المحاسبات. للوصول إلى المحتوى الكامل، يرجى زيارة المنصة.",
+                        response: "📚 يتضمن الدرس عدة وحدات تدريبية مخصصة لموظفي محكمة المحاسبات. للوصول إلى المحتوى الكامل، راجع المنصة.",
                         showLink: true
                     },
                     {
                         keywords: ['هدف', 'غرض', 'لماذا'],
-                        response: "🎯 الهدف الرئيسي هو تدريب موظفي دائرة المحاسبات على المهارات اللازمة لمهام التدقيق والرقابة.",
+                        response: "🎯 الهدف الرئيسي هو تدريب موظفي محكمة المحاسبات على المهارات اللازمة لمهام التدقيق والرقابة.",
                         showLink: false
                     },
                     {
                         keywords: ['تسجيل', 'كيف', 'دخول', 'وصول'],
-                        response: "🔐 للتسجيل أو الوصول إلى الدرس، يرجى الاتصال بمسؤول منصة التدريب بدائرة المحاسبات.",
+                        response: "🔐 للتسجيل أو الوصول إلى الدرس، اتصل بمسؤول منصة التدريب.",
                         showLink: true
                     },
                     {
                         keywords: ['مدة', 'وقت', 'فترة'],
-                        response: "⏱️ تعتمد مدة الدرس على الوحدة المحددة. يرجى الرجوع إلى صفحة الدرس للحصول على التفاصيل.",
+                        response: "⏱️ تعتمد مدة الدرس على الوحدة المحددة. راجع صفحة الدرس للتفاصيل.",
                         showLink: true
                     },
                     {
                         keywords: ['شهادة', 'إفادة'],
-                        response: "🎓 يتم تسليم شهادة تدريب عند إتمام الدرس بنجاح والتحقق من المكتسبات.",
+                        response: "🎓 يتم تسليم شهادة تدريب عند إتمام الدرس بنجاح.",
                         showLink: false
                     },
                     {
-                        keywords: ['مساعدة', 'دعم', 'اتصال'],
-                        response: "💬 لأي سؤال أو مساعدة، يرجى الاتصال بفريق التدريب بدائرة المحاسبات عبر المنصة.",
+                        keywords: ['مساعدة', 'دعم', 'اتصال', 'مشكلة'],
+                        response: "💬 لأي سؤال أو مساعدة، اتصل بفريق التدريب عبر المنصة.",
                         showLink: true
+                    },
+                    {
+                        keywords: ['مرحبا', 'سلام', 'أهلا'],
+                        response: "👋 مرحبا! أنا مساعدك للتدريب محكمة المحاسبات. كيف يمكنني مساعدتك؟",
+                        showLink: false
+                    },
+                    {
+                        keywords: ['شكرا', 'شكراً'],
+                        response: "😊 العفو! لا تتردد في طرح أسئلة أخرى.",
+                        showLink: false
                     }
                 ]
             },
             en: {
+                suggestions: ['Course program', 'How to enroll?', 'Certificate', 'Support'],
                 sections: [
                     {
                         keywords: ['program', 'course', 'content', 'modules'],
-                        response: "📚 The course includes several training modules designed for Court of Audit officials. To access the full content, please visit the platform.",
+                        response: "📚 The course includes several training modules for Court of Audit officials. To access the full content, visit the platform.",
                         showLink: true
                     },
                     {
                         keywords: ['objective', 'goal', 'purpose', 'why'],
-                        response: "🎯 The main objective is to train Court of Audit officials in the skills necessary for their audit and control functions.",
+                        response: "🎯 The main objective is to train Court of Audit officials in necessary audit and control skills.",
                         showLink: false
                     },
                     {
-                        keywords: ['registration', 'how', 'access', 'login'],
-                        response: "🔐 To register or access the course, please contact the administrator of the Court of Audit training platform.",
+                        keywords: ['registration', 'enroll', 'how', 'access', 'login'],
+                        response: "🔐 To register or access the course, contact the training platform administrator.",
                         showLink: true
                     },
                     {
                         keywords: ['duration', 'time', 'period'],
-                        response: "⏱️ Course duration depends on the specific module. Please check the course page for details.",
+                        response: "⏱️ Course duration depends on the specific module. Check the course page for details.",
                         showLink: true
                     },
                     {
                         keywords: ['certificate', 'diploma', 'attestation'],
-                        response: "🎓 A training certificate is issued upon course completion after validation of learning outcomes.",
+                        response: "🎓 A training certificate is issued upon successful course completion.",
                         showLink: false
                     },
                     {
-                        keywords: ['help', 'support', 'contact'],
-                        response: "💬 For any questions or assistance, please contact the Court of Audit training team via the platform.",
+                        keywords: ['help', 'support', 'contact', 'problem'],
+                        response: "💬 For any questions or assistance, contact the training team via the platform.",
                         showLink: true
+                    },
+                    {
+                        keywords: ['hello', 'hi', 'hey'],
+                        response: "👋 Hello! I'm your assistant for Court of Audit training. How can I help you?",
+                        showLink: false
+                    },
+                    {
+                        keywords: ['thank', 'thanks'],
+                        response: "😊 You're welcome! Feel free to ask more questions.",
+                        showLink: false
                     }
                 ]
             }
@@ -366,28 +617,31 @@
         // ============================================
         const TRANSLATIONS = {
             fr: {
-                headerTitle: "Assistant Formation - Cour des Comptes",
+                chatTitle: "Assistant Formation",
+                statusText: "En ligne",
                 inputPlaceholder: "Posez votre question...",
-                welcomeMessage: "Bonjour ! Je suis votre assistant pour la formation de la Cour des Comptes. Comment puis-je vous aider ?",
+                welcomeMessage: "👋 Bonjour ! Je suis votre assistant pour la formation de la Cour des Comptes. Comment puis-je vous aider ?",
                 voiceLang: "fr-FR",
                 linkText: "🔗 Accéder au cours",
-                defaultResponse: "Je n'ai pas trouvé d'information spécifique sur ce sujet. Pouvez-vous reformuler votre question ou consulter directement le cours ?"
+                defaultResponse: "Je n'ai pas trouvé d'information spécifique. Pouvez-vous reformuler votre question ?"
             },
             ar: {
-                headerTitle: "مساعد التدريب - دائرة المحاسبات",
+                chatTitle: "مساعد التدريب",
+                statusText: "متصل",
                 inputPlaceholder: "اطرح سؤالك...",
-                welcomeMessage: "مرحبا! أنا مساعدك للتدريب بدائرة المحاسبات. كيف يمكنني مساعدتك؟",
+                welcomeMessage: "👋 مرحبا! أنا مساعدك للتدريب محكمة المحاسبات. كيف يمكنني مساعدتك؟",
                 voiceLang: "ar-SA",
                 linkText: "🔗 الوصول إلى الدرس",
-                defaultResponse: "لم أجد معلومات محددة حول هذا الموضوع. هل يمكنك إعادة صياغة سؤالك أو الرجوع مباشرة إلى الدرس؟"
+                defaultResponse: "لم أجد معلومات محددة. هل يمكنك إعادة صياغة سؤالك؟"
             },
             en: {
-                headerTitle: "Training Assistant - Court of Audit",
+                chatTitle: "Training Assistant",
+                statusText: "Online",
                 inputPlaceholder: "Ask your question...",
-                welcomeMessage: "Hello! I'm your assistant for the Court of Audit training. How can I help you?",
+                welcomeMessage: "👋 Hello! I'm your assistant for Court of Audit training. How can I help you?",
                 voiceLang: "en-US",
                 linkText: "🔗 Access course",
-                defaultResponse: "I didn't find specific information on this topic. Could you rephrase your question or consult the course directly?"
+                defaultResponse: "I didn't find specific information. Could you rephrase your question?"
             }
         };
 
@@ -395,14 +649,67 @@
         let isRecording = false;
         let recognition = null;
         let synthesis = window.speechSynthesis;
+        let isChatOpen = false;
 
         // ============================================
         // INITIALISATION
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            displayMessage(TRANSLATIONS[currentLanguage].welcomeMessage, 'bot');
             initializeSpeechRecognition();
+            
+            // Afficher le badge de notification après 3 secondes
+            setTimeout(() => {
+                if (!isChatOpen) {
+                    document.getElementById('notificationBadge').style.display = 'flex';
+                }
+            }, 3000);
         });
+
+        // ============================================
+        // TOGGLE CHATBOT
+        // ============================================
+        document.getElementById('chatbotToggler').addEventListener('click', function() {
+            document.body.classList.toggle('show-chatbot');
+            isChatOpen = !isChatOpen;
+            
+            if (isChatOpen) {
+                document.getElementById('notificationBadge').style.display = 'none';
+                if (document.getElementById('chatMessages').children.length === 1) {
+                    setTimeout(() => {
+                        displayWelcomeMessage();
+                    }, 300);
+                }
+                document.getElementById('userInput').focus();
+            }
+        });
+
+        function displayWelcomeMessage() {
+            displayMessage(TRANSLATIONS[currentLanguage].welcomeMessage, 'bot');
+            
+            // Afficher les suggestions rapides
+            const suggestions = KNOWLEDGE_BASE[currentLanguage].suggestions;
+            const suggestionsHTML = suggestions.map(s => 
+                `<button class="suggestion-btn" onclick="handleSuggestion('${s}')">${s}</button>`
+            ).join('');
+            
+            const suggestionDiv = document.createElement('div');
+            suggestionDiv.className = 'message bot';
+            suggestionDiv.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div>Suggestions rapides :</div>
+                    <div class="quick-suggestions">${suggestionsHTML}</div>
+                </div>
+            `;
+            
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.insertBefore(suggestionDiv, document.getElementById('typingIndicator'));
+        }
+
+        function handleSuggestion(suggestion) {
+            document.getElementById('userInput').value = suggestion;
+            sendMessage();
+        }
 
         // ============================================
         // TRAITEMENT DES MESSAGES
@@ -430,7 +737,6 @@
             const lowerQuestion = question.toLowerCase();
             const langData = KNOWLEDGE_BASE[currentLanguage];
             
-            // Recherche par mots-clés
             for (let section of langData.sections) {
                 for (let keyword of section.keywords) {
                     if (lowerQuestion.includes(keyword)) {
@@ -442,7 +748,6 @@
                 }
             }
 
-            // Réponse par défaut
             return {
                 text: TRANSLATIONS[currentLanguage].defaultResponse,
                 showLink: true
@@ -457,21 +762,24 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}`;
             
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'message-content';
-            contentDiv.textContent = message;
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2, '0') + ':' + 
+                        now.getMinutes().toString().padStart(2, '0');
             
-            messageDiv.appendChild(contentDiv);
+            const avatar = sender === 'bot' ? '🤖' : '👤';
             
+            let linkHTML = '';
             if (showLink && sender === 'bot') {
-                const link = document.createElement('a');
-                link.href = COURSE_CONFIG.courseUrl;
-                link.target = '_blank';
-                link.className = 'course-link';
-                link.textContent = TRANSLATIONS[currentLanguage].linkText;
-                contentDiv.appendChild(document.createElement('br'));
-                contentDiv.appendChild(link);
+                linkHTML = `<br><a href="${COURSE_CONFIG.courseUrl}" target="_blank" class="course-link">${TRANSLATIONS[currentLanguage].linkText}</a>`;
             }
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    ${message}${linkHTML}
+                    <span class="message-time">${time}</span>
+                </div>
+            `;
             
             messagesContainer.insertBefore(messageDiv, document.getElementById('typingIndicator'));
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -479,6 +787,7 @@
 
         function showTypingIndicator() {
             document.getElementById('typingIndicator').style.display = 'block';
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
         }
 
         function hideTypingIndicator() {
@@ -557,7 +866,8 @@
         function switchLanguage(lang) {
             currentLanguage = lang;
             
-            document.getElementById('headerTitle').textContent = TRANSLATIONS[lang].headerTitle;
+            document.getElementById('chatTitle').textContent = TRANSLATIONS[lang].chatTitle;
+            document.getElementById('statusText').textContent = TRANSLATIONS[lang].statusText;
             document.getElementById('userInput').placeholder = TRANSLATIONS[lang].inputPlaceholder;
             
             document.querySelectorAll('.lang-btn').forEach(btn => {
