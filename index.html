@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot Widget - Cour des Comptes</title>
+    <title>مساعد التدريب الذكي - محكمة المحاسبات</title>
     <style>
         * {
             margin: 0;
@@ -15,30 +15,27 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* ============================================ */
-        /* BOUTON FLOTTANT */
-        /* ============================================ */
         .chatbot-toggler {
             position: fixed;
             bottom: 30px;
             right: 30px;
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            background: linear-gradient(135deg, #1a472a 0%, #2ecc71 100%);
             border: none;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 5px 20px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 5px 20px rgba(46, 204, 113, 0.4);
             transition: all 0.3s ease;
             z-index: 9999;
         }
 
         .chatbot-toggler:hover {
             transform: scale(1.1);
-            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.6);
+            box-shadow: 0 8px 25px rgba(46, 204, 113, 0.6);
         }
 
         .chatbot-toggler span {
@@ -63,7 +60,6 @@
             transform: rotate(0deg);
         }
 
-        /* Badge de notification */
         .notification-badge {
             position: absolute;
             top: -5px;
@@ -86,9 +82,6 @@
             50% { transform: scale(1.1); }
         }
 
-        /* ============================================ */
-        /* FENÊTRE DE CHAT */
-        /* ============================================ */
         .chatbot-container {
             position: fixed;
             bottom: 100px;
@@ -113,11 +106,10 @@
             opacity: 1;
         }
 
-        /* En-tête */
         .chat-header {
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            background: linear-gradient(135deg, #1a472a 0%, #2ecc71 100%);
             color: white;
-            padding: 20px;
+            padding: 15px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -129,12 +121,12 @@
         }
 
         .chat-header h2 {
-            font-size: 18px;
-            margin-bottom: 5px;
+            font-size: 16px;
+            margin-bottom: 3px;
         }
 
         .chat-header .status {
-            font-size: 12px;
+            font-size: 11px;
             opacity: 0.9;
             display: flex;
             align-items: center;
@@ -154,9 +146,39 @@
             50% { opacity: 0.3; }
         }
 
-        .language-selector {
+        .header-controls {
             display: flex;
             gap: 5px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .icon-btn.active {
+            background: white;
+            color: #1a472a;
+        }
+
+        .language-selector {
+            display: flex;
+            gap: 3px;
         }
 
         .lang-btn {
@@ -164,18 +186,17 @@
             border: 1px solid white;
             background: transparent;
             color: white;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 10px;
+            font-size: 9px;
             transition: all 0.3s;
         }
 
         .lang-btn.active {
             background: white;
-            color: #2c3e50;
+            color: #1a472a;
         }
 
-        /* Messages */
         .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -226,7 +247,7 @@
         }
 
         .message.bot .message-avatar {
-            background: linear-gradient(135deg, #3498db, #2c3e50);
+            background: linear-gradient(135deg, #2ecc71, #1a472a);
             color: white;
         }
 
@@ -252,7 +273,7 @@
         }
 
         .message.user .message-content {
-            background: #3498db;
+            background: #2ecc71;
             color: white;
             border-bottom-right-radius: 5px;
         }
@@ -264,7 +285,6 @@
             display: block;
         }
 
-        /* Indicateur de frappe */
         .typing-indicator {
             display: none;
             padding: 12px 16px;
@@ -279,7 +299,7 @@
             display: inline-block;
             width: 8px;
             height: 8px;
-            background: #3498db;
+            background: #2ecc71;
             border-radius: 50%;
             margin: 0 2px;
             animation: typing 1.4s infinite;
@@ -293,7 +313,6 @@
             30% { transform: translateY(-10px); }
         }
 
-        /* Zone de saisie */
         .chat-input-area {
             padding: 15px 20px;
             background: white;
@@ -303,28 +322,28 @@
 
         .input-controls {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
         }
 
         #userInput {
             flex: 1;
-            padding: 12px 16px;
+            padding: 10px 14px;
             border: 2px solid #e0e0e0;
-            border-radius: 25px;
-            font-size: 14px;
+            border-radius: 20px;
+            font-size: 13px;
             outline: none;
             transition: border 0.3s;
             font-family: inherit;
         }
 
         #userInput:focus {
-            border-color: #3498db;
+            border-color: #2ecc71;
         }
 
-        .btn-send, .btn-voice {
-            width: 42px;
-            height: 42px;
+        .btn-send, .btn-voice, .btn-add {
+            width: 38px;
+            height: 38px;
             border: none;
             border-radius: 50%;
             cursor: pointer;
@@ -332,26 +351,26 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .btn-send {
-            background: #3498db;
+            background: #2ecc71;
             color: white;
         }
 
         .btn-send:hover {
-            background: #2980b9;
+            background: #27ae60;
             transform: scale(1.1);
         }
 
         .btn-voice {
-            background: #27ae60;
+            background: #3498db;
             color: white;
         }
 
         .btn-voice:hover {
-            background: #229954;
+            background: #2980b9;
         }
 
         .btn-voice.recording {
@@ -359,17 +378,26 @@
             animation: pulse-recording 1s infinite;
         }
 
+        .btn-add {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .btn-add:hover {
+            background: #8e44ad;
+            transform: scale(1.1);
+        }
+
         @keyframes pulse-recording {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.15); }
         }
 
-        /* Lien vers le cours */
         .course-link {
             display: inline-block;
             margin-top: 8px;
             padding: 6px 12px;
-            background: #3498db;
+            background: #2ecc71;
             color: white;
             text-decoration: none;
             border-radius: 8px;
@@ -378,10 +406,9 @@
         }
 
         .course-link:hover {
-            background: #2980b9;
+            background: #27ae60;
         }
 
-        /* Suggestions rapides */
         .quick-suggestions {
             display: flex;
             flex-wrap: wrap;
@@ -390,22 +417,164 @@
         }
 
         .suggestion-btn {
-            padding: 8px 12px;
+            padding: 6px 10px;
             background: #ecf0f1;
             border: none;
-            border-radius: 15px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
             transition: all 0.3s;
             color: #2c3e50;
         }
 
         .suggestion-btn:hover {
-            background: #3498db;
+            background: #2ecc71;
             color: white;
         }
 
-        /* Responsive */
+        /* Modal للإضافة */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #1a472a;
+            font-size: 18px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #e74c3c;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: border 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2ecc71;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-modal {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #27ae60;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .learned-badge {
+            display: inline-block;
+            background: #9b59b6;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            margin-right: 5px;
+        }
+
         @media (max-width: 480px) {
             .chatbot-container {
                 width: 100%;
@@ -419,31 +588,37 @@
                 bottom: 20px;
                 right: 20px;
             }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Bouton flottant -->
     <button class="chatbot-toggler" id="chatbotToggler">
         <span class="chat-icon">💬</span>
         <span class="close-icon">✕</span>
         <span class="notification-badge" id="notificationBadge" style="display: none;">1</span>
     </button>
 
-    <!-- Fenêtre de chat -->
     <div class="chatbot-container">
         <div class="chat-header">
             <div class="chat-header-info">
-                <h2 id="chatTitle">Assistant Formation</h2>
+                <h2 id="chatTitle">مساعد التدريب الذكي 🧠</h2>
                 <div class="status">
                     <span class="status-dot"></span>
-                    <span id="statusText">En ligne</span>
+                    <span id="statusText">متصل • يتعلم من أسئلتك</span>
                 </div>
             </div>
-            <div class="language-selector">
-                <button class="lang-btn active" data-lang="fr" onclick="switchLanguage('fr')">FR</button>
-                <button class="lang-btn" data-lang="ar" onclick="switchLanguage('ar')">AR</button>
-                <button class="lang-btn" data-lang="en" onclick="switchLanguage('en')">EN</button>
+            <div class="header-controls">
+                <button class="icon-btn" id="soundBtn" onclick="toggleSound()" title="تفعيل الصوت">🔇</button>
+                <div class="language-selector">
+                    <button class="lang-btn active" data-lang="ar" onclick="switchLanguage('ar')">AR</button>
+                    <button class="lang-btn" data-lang="fr" onclick="switchLanguage('fr')">FR</button>
+                    <button class="lang-btn" data-lang="en" onclick="switchLanguage('en')">EN</button>
+                </div>
             </div>
         </div>
 
@@ -455,209 +630,233 @@
 
         <div class="chat-input-area">
             <div class="input-controls">
-                <input type="text" id="userInput" placeholder="Posez votre question..." />
-                <button class="btn-send" onclick="sendMessage()" title="Envoyer">📤</button>
-                <button class="btn-voice" id="voiceBtn" onclick="toggleVoiceRecognition()" title="Microphone">🎤</button>
+                <input type="text" id="userInput" placeholder="اطرح سؤالك..." />
+                <button class="btn-add" onclick="openAddKnowledgeModal()" title="أضف معلومة جديدة">➕</button>
+                <button class="btn-voice" id="voiceBtn" onclick="toggleVoiceRecognition()" title="ميكروفون">🎤</button>
+                <button class="btn-send" onclick="sendMessage()" title="إرسال">📤</button>
             </div>
         </div>
     </div>
 
+    <!-- Modal لإضافة معلومات جديدة -->
+    <div class="modal" id="addKnowledgeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>➕ أضف معلومة جديدة</h3>
+                <button class="modal-close" onclick="closeAddKnowledgeModal()">×</button>
+            </div>
+            <form onsubmit="saveNewKnowledge(event)">
+                <div class="form-group">
+                    <label for="newKeywords">الكلمات المفتاحية (افصل بفاصلة)</label>
+                    <input type="text" id="newKeywords" placeholder="مثال: تقييم، قياس، اختبار" required>
+                </div>
+                <div class="form-group">
+                    <label for="newResponse">الإجابة/المعلومة</label>
+                    <textarea id="newResponse" placeholder="اكتب المعلومة التي تريد إضافتها..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="showLinkCheckbox" checked>
+                        عرض رابط الدرس مع الإجابة
+                    </label>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-modal btn-secondary" onclick="closeAddKnowledgeModal()">إلغاء</button>
+                    <button type="submit" class="btn-modal btn-primary">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // ============================================
-        // CONFIGURATION
-        // ============================================
         const COURSE_CONFIG = {
-            courseUrl: 'http://association.courdescomptes.nat.tn:8080/course/view.php?id=28',
-            courseName: 'Formation Cour des Comptes'
+            courseUrl: 'http://association.courdescomptes.nat.tn:8080/course/view.php?id=43',
+            courseName: 'دورة تدريب أخصائي التعلم الإلكتروني - محكمة المحاسبات'
         };
 
-        // ============================================
-        // BASE DE CONNAISSANCES
-        // ============================================
         const KNOWLEDGE_BASE = {
-            fr: {
-                suggestions: ['Programme du cours', 'Comment m\'inscrire ?', 'Certificat', 'Support'],
+            ar: {
+                suggestions: ['نموذج VARK', 'نظرية كولب', 'منهجية ADDIE', 'تحليل الاحتياجات', 'أهداف التعلم'],
                 sections: [
                     {
-                        keywords: ['programme', 'cours', 'contenu', 'modules'],
-                        response: "📚 Le cours comprend plusieurs modules de formation destinés aux officiels de la Cour des Comptes. Pour accéder au contenu complet, consultez la plateforme.",
+                        keywords: ['تعلم إلكتروني', 'elearning', 'تعريف', 'مفهوم', 'ماهو'],
+                        response: "💻 التعلم الإلكتروني هو تقديم وإدارة فرص التعلم والدعم عبر الكمبيوتر والشبكات والتكنولوجيا القائمة على الإنترنت، ومؤخرًا على التعلم المتنقل باستخدام الأجهزة اللوحية والهواتف المحمولة للمساعدة في ممارسة الأداء الفردي والتطور.",
                         showLink: true
                     },
                     {
-                        keywords: ['objectif', 'but', 'pourquoi'],
-                        response: "🎯 L'objectif principal est de former les officiels de la Cour des Comptes aux compétences nécessaires pour leurs fonctions d'audit et de contrôle.",
+                        keywords: ['مزايا', 'فوائد', 'قيمة', 'أهمية'],
+                        response: "✨ مزايا التعلم الإلكتروني: 1) التوافر في أي وقت ومكان، 2) التوحيد والتخصيص، 3) فعالية التكلفة، 4) صديق للبيئة، 5) الشمولية، 6) المرونة في الوقت، 7) التوثيق وإمكانية الرجوع للمحتوى، 8) الوصول لعدد كبير من المشاركين.",
                         showLink: false
                     },
                     {
-                        keywords: ['inscription', 'comment', 'accès', 'connexion'],
-                        response: "🔐 Pour vous inscrire ou accéder au cours, veuillez contacter l'administrateur de la plateforme de formation.",
+                        keywords: ['lms', 'نظام إدارة التعلم', 'منصة', 'moodle'],
+                        response: "🖥️ نظام إدارة التعلم (LMS) هو منصة تقنية لاستضافة وتنظيم المحتويات، إدارة التسجيلات والمسارات، تتبع تقدم المتعلمين، تسهيل التفاعلات، وإنشاء تقارير تحليلية. مثال: Moodle، وهو مفتوح المصدر ومناسب للأجهزة العليا للرقابة.",
                         showLink: true
                     },
                     {
-                        keywords: ['durée', 'temps', 'période'],
-                        response: "⏱️ La durée du cours dépend du module spécifique. Consultez la page du cours pour les détails.",
+                        keywords: ['كولب', 'التعلم التجريبي', 'دورة التعلم', 'erga'],
+                        response: "📚 نظرية كولب للتعلم التجريبي: دورة من 4 مراحل: 1) التجربة الملموسة، 2) الملاحظة التأملية، 3) التصور المجرد، 4) التجريب النشط. نموذج ERGA: التجربة Experience → التفكير Reflection → التعميم Generalization → التطبيق Application.",
                         showLink: true
                     },
                     {
-                        keywords: ['certificat', 'diplôme', 'attestation'],
-                        response: "🎓 Un certificat de formation est délivré à la fin du cours après validation des acquis.",
+                        keywords: ['فارك', 'vark', 'أنماط التعلم', 'بصري', 'سمعي', 'حركي'],
+                        response: "🎨 نموذج VARK: Visual بصري (صور، فيديو)، Auditory سمعي (مناقشات، بودكاست)، Reading/Writing قرائي (نصوص، PDF)، Kinesthetic حركي (ممارسة، محاكاة). كل متعلم يجمع بين هذه الأنماط مع تفضيل مهيمن.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['أندراغوجيا', 'تعليم الكبار', 'مبادئ'],
+                        response: "🧑‍🎓 مبادئ تعلم الكبار: 1) يحضرون خبرات حياتية غنية، 2) يتعلمون بتوجيه ذاتي، 3) يركزون على التطبيق الفوري، 4) لديهم دوافع ذاتية، 5) عمليون ويحبون الأمثلة الواقعية، 6) يحبون الاحترام وتقدير خبراتهم.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['addie', 'أدي', 'مراحل', 'منهجية', 'التصميم التعليمي'],
+                        response: "🔧 منهجية ADDIE: 1) التحليل Analysis (الاحتياجات، المتعلمين، المهام)، 2) التصميم Design (الأهداف، هيكل المادة)، 3) الإعداد Development (إنشاء المحتوى)، 4) التقديم Implementation (التنفيذ، التيسير)، 5) التقييم Evaluation (قياس الفعالية).",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['تحليل الاحتياجات', 'الفجوة', 'فجوة الأداء'],
+                        response: "🔍 تحليل الاحتياجات يحدد الفجوات بين الكفاءات الحالية والمطلوبة. التدريب فقط عندما يكون السبب نقص المعرفة/المهارات. أما المشاكل التنظيمية فتحتاج حلول إدارية لا تدريب.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['تحليل المهام', 'المهام الحرجة', 'خطوات الأداء'],
+                        response: "📋 تحليل المهمة يوضح: 1) المهام الرئيسية، 2) الخطوات المطلوبة، 3) المهارات والمعرفة اللازمة، 4) ظروف الأداء، 5) معايير الأداء المقبول. الناتج: أهداف الأداء Performance Objectives.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['تحليل المتعلمين', 'الجمهور المستهدف', 'خصائص'],
+                        response: "👥 تحليل المتعلمين يفحص: 1) المستوى التعليمي والخبرة، 2) القدرات المعرفية، 3) اللغة والثقافة، 4) الجنس والتحديات الخاصة، 5) الدافعية ومهارات تكنولوجيا المعلومات، 6) أنماط التعلم المفضلة.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['السبب الجذري', 'خمس لماذا', 'السمكة', 'fishbone'],
+                        response: "🐟 تحليل السبب الجذري: 1) خمس لماذا (اسأل 'لماذا؟' 5 مرات)، 2) مخطط عظمة السمكة (تصنيف الأسباب: الأشخاص، العمليات، الأدوات، السياسات، البيئة). التمييز بين السبب الجذري والأعراض.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['أهداف التعلم', 'smart', 'أهداف أداء'],
+                        response: "🎯 هدف التعلم: 1) الظروف (الأدوات المتاحة)، 2) الأداء (فعل قابل للقياس: يصف، يحلل، يصمم)، 3) المعايير (مستوى الأداء: بدقة 80%)، 4) التقييم (من سيحكم: الميسر، الأقران، الذات).",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['هيكل المادة', 'الوحدات', 'تقسيم الدورة'],
+                        response: "📚 تصميم هيكل المادة: 1) تحديد الوحدات بناءً على المهام الرئيسية، 2) كل وحدة تغطي 2-3 نقاط تعلم رئيسية، 3) ترتيب منطقي من البسيط للمعقد، 4) توازن بين الوحدات، 5) كل وحدة لها هدف واضح.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['تقييم', 'كيركباتريك', 'kirkpatrick', 'قياس الأثر'],
+                        response: "📊 نموذج كيركباتريك: المستوى 1: رد الفعل (رضا المشاركين)، المستوى 2: التعلم (اكتساب معارف)، المستوى 3: السلوك (تطبيق في العمل)، المستوى 4: النتائج (الأثر على المنظمة، ROI).",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['مرحبا', 'السلام عليكم', 'أهلا', 'hello'],
+                        response: "👋 مرحبًا! أنا مساعدك الذكي الذي يتعلم من أسئلتك! يمكنني مساعدتك في: ADDIE، VARK، كولب، تحليل الاحتياجات، التقييم، وأكثر. كما يمكنك إضافة معلومات جديدة بالضغط على زر ➕",
                         showLink: false
                     },
                     {
-                        keywords: ['aide', 'support', 'contact', 'problème'],
-                        response: "💬 Pour toute question ou assistance, contactez l'équipe de formation via la plateforme.",
-                        showLink: true
-                    },
-                    {
-                        keywords: ['bonjour', 'salut', 'hello', 'hey'],
-                        response: "👋 Bonjour ! Je suis votre assistant pour la formation de la Cour des Comptes. Comment puis-je vous aider ?",
-                        showLink: false
-                    },
-                    {
-                        keywords: ['merci', 'remercie'],
-                        response: "😊 De rien ! N'hésitez pas si vous avez d'autres questions.",
+                        keywords: ['شكرا', 'شكراً', 'thanks'],
+                        response: "😊 العفو! سعيد بمساعدتك. لا تنسَ أنه يمكنك إضافة معلومات جديدة لتطوير قاعدة معارفي! 🎓",
                         showLink: false
                     }
                 ]
             },
-            ar: {
-                suggestions: ['برنامج الدرس', 'كيفية التسجيل؟', 'الشهادة', 'الدعم'],
+            fr: {
+                suggestions: ['VARK', 'Kolb', 'ADDIE', 'Analyse', 'Objectifs'],
                 sections: [
                     {
-                        keywords: ['برنامج', 'محتوى', 'دروس', 'وحدات'],
-                        response: "📚 يتضمن الدرس عدة وحدات تدريبية مخصصة لموظفي محكمة المحاسبات. للوصول إلى المحتوى الكامل، راجع المنصة.",
+                        keywords: ['elearning', 'apprentissage', 'définition'],
+                        response: "💻 L'e-learning est la fourniture et gestion d'opportunités d'apprentissage via ordinateur, réseaux et technologies Internet.",
                         showLink: true
                     },
                     {
-                        keywords: ['هدف', 'غرض', 'لماذا'],
-                        response: "🎯 الهدف الرئيسي هو تدريب موظفي محكمة المحاسبات على المهارات اللازمة لمهام التدقيق والرقابة.",
-                        showLink: false
-                    },
-                    {
-                        keywords: ['تسجيل', 'كيف', 'دخول', 'وصول'],
-                        response: "🔐 للتسجيل أو الوصول إلى الدرس، اتصل بمسؤول منصة التدريب.",
-                        showLink: true
-                    },
-                    {
-                        keywords: ['مدة', 'وقت', 'فترة'],
-                        response: "⏱️ تعتمد مدة الدرس على الوحدة المحددة. راجع صفحة الدرس للتفاصيل.",
-                        showLink: true
-                    },
-                    {
-                        keywords: ['شهادة', 'إفادة'],
-                        response: "🎓 يتم تسليم شهادة تدريب عند إتمام الدرس بنجاح.",
-                        showLink: false
-                    },
-                    {
-                        keywords: ['مساعدة', 'دعم', 'اتصال', 'مشكلة'],
-                        response: "💬 لأي سؤال أو مساعدة، اتصل بفريق التدريب عبر المنصة.",
-                        showLink: true
-                    },
-                    {
-                        keywords: ['مرحبا', 'سلام', 'أهلا'],
-                        response: "👋 مرحبا! أنا مساعدك للتدريب محكمة المحاسبات. كيف يمكنني مساعدتك؟",
-                        showLink: false
-                    },
-                    {
-                        keywords: ['شكرا', 'شكراً'],
-                        response: "😊 العفو! لا تتردد في طرح أسئلة أخرى.",
+                        keywords: ['bonjour', 'salut'],
+                        response: "👋 Bonjour! Je suis votre assistant intelligent qui apprend de vos questions! Utilisez le bouton ➕ pour ajouter de nouvelles informations.",
                         showLink: false
                     }
                 ]
             },
             en: {
-                suggestions: ['Course program', 'How to enroll?', 'Certificate', 'Support'],
+                suggestions: ['VARK', 'Kolb', 'ADDIE', 'Analysis', 'Objectives'],
                 sections: [
                     {
-                        keywords: ['program', 'course', 'content', 'modules'],
-                        response: "📚 The course includes several training modules for Court of Audit officials. To access the full content, visit the platform.",
+                        keywords: ['elearning', 'definition'],
+                        response: "💻 E-learning is the delivery and management of learning opportunities via computer and Internet-based technology.",
                         showLink: true
                     },
                     {
-                        keywords: ['objective', 'goal', 'purpose', 'why'],
-                        response: "🎯 The main objective is to train Court of Audit officials in necessary audit and control skills.",
-                        showLink: false
-                    },
-                    {
-                        keywords: ['registration', 'enroll', 'how', 'access', 'login'],
-                        response: "🔐 To register or access the course, contact the training platform administrator.",
-                        showLink: true
-                    },
-                    {
-                        keywords: ['duration', 'time', 'period'],
-                        response: "⏱️ Course duration depends on the specific module. Check the course page for details.",
-                        showLink: true
-                    },
-                    {
-                        keywords: ['certificate', 'diploma', 'attestation'],
-                        response: "🎓 A training certificate is issued upon successful course completion.",
-                        showLink: false
-                    },
-                    {
-                        keywords: ['help', 'support', 'contact', 'problem'],
-                        response: "💬 For any questions or assistance, contact the training team via the platform.",
-                        showLink: true
-                    },
-                    {
-                        keywords: ['hello', 'hi', 'hey'],
-                        response: "👋 Hello! I'm your assistant for Court of Audit training. How can I help you?",
-                        showLink: false
-                    },
-                    {
-                        keywords: ['thank', 'thanks'],
-                        response: "😊 You're welcome! Feel free to ask more questions.",
+                        keywords: ['hello', 'hi'],
+                        response: "👋 Hello! I'm your smart assistant that learns from your questions! Use the ➕ button to add new information.",
                         showLink: false
                     }
                 ]
             }
         };
 
-        // ============================================
-        // TRADUCTIONS INTERFACE
-        // ============================================
         const TRANSLATIONS = {
-            fr: {
-                chatTitle: "Assistant Formation",
-                statusText: "En ligne",
-                inputPlaceholder: "Posez votre question...",
-                welcomeMessage: "👋 Bonjour ! Je suis votre assistant pour la formation de la Cour des Comptes. Comment puis-je vous aider ?",
-                voiceLang: "fr-FR",
-                linkText: "🔗 Accéder au cours",
-                defaultResponse: "Je n'ai pas trouvé d'information spécifique. Pouvez-vous reformuler votre question ?"
-            },
             ar: {
-                chatTitle: "مساعد التدريب",
-                statusText: "متصل",
+                chatTitle: "مساعد التدريب الذكي 🧠",
+                statusText: "متصل • يتعلم من أسئلتك",
                 inputPlaceholder: "اطرح سؤالك...",
-                welcomeMessage: "👋 مرحبا! أنا مساعدك للتدريب محكمة المحاسبات. كيف يمكنني مساعدتك؟",
+                welcomeMessage: "👋 مرحبًا! أنا مساعدك الذكي الذي يتعلم من أسئلتك وإجاباتك. استخدم زر ➕ لإضافة معلومات جديدة!",
                 voiceLang: "ar-SA",
                 linkText: "🔗 الوصول إلى الدرس",
-                defaultResponse: "لم أجد معلومات محددة. هل يمكنك إعادة صياغة سؤالك؟"
+                defaultResponse: "🤔 لم أجد معلومات محددة حول هذا الموضوع. هل يمكنك إضافة الإجابة بالضغط على زر ➕ ليتعلم الشات بوت؟",
+                knowledgeAdded: "✅ تم إضافة المعلومة بنجاح! الآن يمكنني الإجابة عن هذا الموضوع.",
+                learnedFrom: "تعلمت من"
+            },
+            fr: {
+                chatTitle: "Assistant Intelligent 🧠",
+                statusText: "En ligne • Apprend de vos questions",
+                inputPlaceholder: "Posez votre question...",
+                welcomeMessage: "👋 Bonjour! Je suis votre assistant intelligent qui apprend! Utilisez ➕ pour ajouter des informations.",
+                voiceLang: "fr-FR",
+                linkText: "🔗 Accéder au cours",
+                defaultResponse: "🤔 Je n'ai pas trouvé d'informations. Voulez-vous ajouter la réponse avec ➕?",
+                knowledgeAdded: "✅ Information ajoutée!",
+                learnedFrom: "Appris de"
             },
             en: {
-                chatTitle: "Training Assistant",
-                statusText: "Online",
+                chatTitle: "Smart Assistant 🧠",
+                statusText: "Online • Learning from you",
                 inputPlaceholder: "Ask your question...",
-                welcomeMessage: "👋 Hello! I'm your assistant for Court of Audit training. How can I help you?",
+                welcomeMessage: "👋 Hello! I'm your smart assistant that learns! Use ➕ to add new information.",
                 voiceLang: "en-US",
                 linkText: "🔗 Access course",
-                defaultResponse: "I didn't find specific information. Could you rephrase your question?"
+                defaultResponse: "🤔 I don't have information on this. Would you like to add it with ➕?",
+                knowledgeAdded: "✅ Information added!",
+                learnedFrom: "Learned from"
             }
         };
 
-        let currentLanguage = 'fr';
+        let currentLanguage = 'ar';
         let isRecording = false;
+        let isSoundEnabled = false;
         let recognition = null;
         let synthesis = window.speechSynthesis;
         let isChatOpen = false;
 
-        // ============================================
-        // INITIALISATION
-        // ============================================
+        // LocalStorage للتعلم
+        const STORAGE_KEY = 'chatbot_learned_knowledge';
+
+        function getLearnedKnowledge() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            return stored ? JSON.parse(stored) : { ar: [], fr: [], en: [] };
+        }
+
+        function saveLearnedKnowledge(lang, entry) {
+            const learned = getLearnedKnowledge();
+            learned[lang].push({
+                ...entry,
+                timestamp: new Date().toISOString(),
+                learnedBy: 'user'
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(learned));
+            console.log('✅ Knowledge saved:', entry);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             initializeSpeechRecognition();
-            
-            // Afficher le badge de notification après 3 secondes
+            loadLearnedKnowledge();
             setTimeout(() => {
                 if (!isChatOpen) {
                     document.getElementById('notificationBadge').style.display = 'flex';
@@ -665,13 +864,19 @@
             }, 3000);
         });
 
-        // ============================================
-        // TOGGLE CHATBOT
-        // ============================================
+        function loadLearnedKnowledge() {
+            const learned = getLearnedKnowledge();
+            let totalLearned = 0;
+            for (let lang in learned) {
+                totalLearned += learned[lang].length;
+            }
+            console.log(`📚 Loaded ${totalLearned} learned entries`);
+        }
+
         document.getElementById('chatbotToggler').addEventListener('click', function() {
             document.body.classList.toggle('show-chatbot');
             isChatOpen = !isChatOpen;
-            
+
             if (isChatOpen) {
                 document.getElementById('notificationBadge').style.display = 'none';
                 if (document.getElementById('chatMessages').children.length === 1) {
@@ -684,24 +889,31 @@
         });
 
         function displayWelcomeMessage() {
-            displayMessage(TRANSLATIONS[currentLanguage].welcomeMessage, 'bot');
-            
-            // Afficher les suggestions rapides
+            const learned = getLearnedKnowledge();
+            const learnedCount = learned[currentLanguage].length;
+
+            let message = TRANSLATIONS[currentLanguage].welcomeMessage;
+            if (learnedCount > 0) {
+                message += ` لديّ الآن ${learnedCount} معلومة إضافية تعلمتها منكم! 🎉`;
+            }
+
+            displayMessage(message, 'bot');
+
             const suggestions = KNOWLEDGE_BASE[currentLanguage].suggestions;
             const suggestionsHTML = suggestions.map(s => 
                 `<button class="suggestion-btn" onclick="handleSuggestion('${s}')">${s}</button>`
             ).join('');
-            
+
             const suggestionDiv = document.createElement('div');
             suggestionDiv.className = 'message bot';
             suggestionDiv.innerHTML = `
                 <div class="message-avatar">🤖</div>
                 <div class="message-content">
-                    <div>Suggestions rapides :</div>
+                    <div>اقتراحات سريعة:</div>
                     <div class="quick-suggestions">${suggestionsHTML}</div>
                 </div>
             `;
-            
+
             const messagesContainer = document.getElementById('chatMessages');
             messagesContainer.insertBefore(suggestionDiv, document.getElementById('typingIndicator'));
         }
@@ -711,9 +923,6 @@
             sendMessage();
         }
 
-        // ============================================
-        // TRAITEMENT DES MESSAGES
-        // ============================================
         function sendMessage() {
             const input = document.getElementById('userInput');
             const message = input.value.trim();
@@ -728,21 +937,39 @@
             setTimeout(() => {
                 const response = generateResponse(message);
                 hideTypingIndicator();
-                displayMessage(response.text, 'bot', response.showLink);
-                speakResponse(response.text);
+                displayMessage(response.text, 'bot', response.showLink, response.isLearned);
+                if (isSoundEnabled) {
+                    speakResponse(response.text);
+                }
             }, 800);
         }
 
         function generateResponse(question) {
             const lowerQuestion = question.toLowerCase();
+
+            // أولاً: البحث في المعرفة المتعلمة
+            const learned = getLearnedKnowledge();
+            for (let entry of learned[currentLanguage]) {
+                for (let keyword of entry.keywords) {
+                    if (lowerQuestion.includes(keyword.toLowerCase())) {
+                        return {
+                            text: entry.response,
+                            showLink: entry.showLink,
+                            isLearned: true
+                        };
+                    }
+                }
+            }
+
+            // ثانياً: البحث في قاعدة المعارف الأصلية
             const langData = KNOWLEDGE_BASE[currentLanguage];
-            
             for (let section of langData.sections) {
                 for (let keyword of section.keywords) {
                     if (lowerQuestion.includes(keyword)) {
                         return {
                             text: section.response,
-                            showLink: section.showLink
+                            showLink: section.showLink,
+                            isLearned: false
                         };
                     }
                 }
@@ -750,37 +977,40 @@
 
             return {
                 text: TRANSLATIONS[currentLanguage].defaultResponse,
-                showLink: true
+                showLink: true,
+                isLearned: false
             };
         }
 
-        // ============================================
-        // AFFICHAGE
-        // ============================================
-        function displayMessage(message, sender, showLink = false) {
+        function displayMessage(message, sender, showLink = false, isLearned = false) {
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}`;
-            
+
             const now = new Date();
             const time = now.getHours().toString().padStart(2, '0') + ':' + 
                         now.getMinutes().toString().padStart(2, '0');
-            
+
             const avatar = sender === 'bot' ? '🤖' : '👤';
-            
+
             let linkHTML = '';
             if (showLink && sender === 'bot') {
                 linkHTML = `<br><a href="${COURSE_CONFIG.courseUrl}" target="_blank" class="course-link">${TRANSLATIONS[currentLanguage].linkText}</a>`;
             }
-            
+
+            let learnedBadge = '';
+            if (isLearned && sender === 'bot') {
+                learnedBadge = `<span class="learned-badge">✨ ${TRANSLATIONS[currentLanguage].learnedFrom}</span>`;
+            }
+
             messageDiv.innerHTML = `
                 <div class="message-avatar">${avatar}</div>
                 <div class="message-content">
-                    ${message}${linkHTML}
+                    ${learnedBadge}${message}${linkHTML}
                     <span class="message-time">${time}</span>
                 </div>
             `;
-            
+
             messagesContainer.insertBefore(messageDiv, document.getElementById('typingIndicator'));
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
@@ -795,13 +1025,60 @@
         }
 
         // ============================================
-        // RECONNAISSANCE VOCALE
+        // MODAL لإضافة معلومات جديدة
+        // ============================================
+        function openAddKnowledgeModal() {
+            document.getElementById('addKnowledgeModal').classList.add('show');
+            document.getElementById('newKeywords').focus();
+        }
+
+        function closeAddKnowledgeModal() {
+            document.getElementById('addKnowledgeModal').classList.remove('show');
+            document.getElementById('newKeywords').value = '';
+            document.getElementById('newResponse').value = '';
+            document.getElementById('showLinkCheckbox').checked = true;
+        }
+
+        function saveNewKnowledge(event) {
+            event.preventDefault();
+
+            const keywordsInput = document.getElementById('newKeywords').value;
+            const response = document.getElementById('newResponse').value;
+            const showLink = document.getElementById('showLinkCheckbox').checked;
+
+            const keywords = keywordsInput.split(',').map(k => k.trim()).filter(k => k.length > 0);
+
+            if (keywords.length === 0 || response.length === 0) {
+                alert('الرجاء ملء جميع الحقول');
+                return;
+            }
+
+            const newEntry = {
+                keywords: keywords,
+                response: response,
+                showLink: showLink
+            };
+
+            saveLearnedKnowledge(currentLanguage, newEntry);
+
+            closeAddKnowledgeModal();
+
+            displayMessage(TRANSLATIONS[currentLanguage].knowledgeAdded, 'bot');
+
+            // تحديث العداد
+            const learned = getLearnedKnowledge();
+            const count = learned[currentLanguage].length;
+            document.getElementById('statusText').textContent = `متصل • ${count} معلومات متعلمة`;
+        }
+
+        // ============================================
+        // SPEECH RECOGNITION & SYNTHESIS
         // ============================================
         function initializeSpeechRecognition() {
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 recognition = new SpeechRecognition();
-                
+
                 recognition.continuous = false;
                 recognition.interimResults = false;
                 recognition.lang = TRANSLATIONS[currentLanguage].voiceLang;
@@ -837,39 +1114,106 @@
             }
         }
 
-        // ============================================
-        // SYNTHÈSE VOCALE
-        // ============================================
+        function toggleSound() {
+            isSoundEnabled = !isSoundEnabled;
+            const soundBtn = document.getElementById('soundBtn');
+
+            if (isSoundEnabled) {
+                soundBtn.innerHTML = '🔊';
+                soundBtn.title = 'إيقاف الصوت';
+                soundBtn.classList.add('active');
+            } else {
+                soundBtn.innerHTML = '🔇';
+                soundBtn.title = 'تفعيل الصوت';
+                soundBtn.classList.remove('active');
+                if (synthesis) synthesis.cancel();
+            }
+        }
+
         function speakResponse(text) {
-            if (!synthesis) return;
+            if (!synthesis || !isSoundEnabled) return;
+
+            const cleanText = text.replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
+                                  .replace(/[0-9]/g, '')
+                                  .replace(/[()]/g, '')
+                                  .replace(/✅|🤔|➕|✨/g, '')
+                                  .trim();
+
+            if (!cleanText) return;
 
             synthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = TRANSLATIONS[currentLanguage].voiceLang;
-            utterance.rate = 0.9;
 
-            const voices = synthesis.getVoices();
-            const preferredVoice = voices.find(voice => 
-                voice.lang.startsWith(currentLanguage)
-            );
-            
-            if (preferredVoice) {
-                utterance.voice = preferredVoice;
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+
+            if (currentLanguage === 'ar') {
+                utterance.lang = 'ar-SA';
+                utterance.rate = 0.85;
+                utterance.pitch = 1.0;
+            } else if (currentLanguage === 'fr') {
+                utterance.lang = 'fr-FR';
+                utterance.rate = 0.9;
+                utterance.pitch = 1.0;
+            } else {
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                utterance.pitch = 1.0;
+            }
+
+            let voices = synthesis.getVoices();
+
+            if (voices.length === 0) {
+                synthesis.addEventListener('voiceschanged', () => {
+                    voices = synthesis.getVoices();
+                    setVoiceAndSpeak(utterance, voices);
+                }, { once: true });
+                return;
+            }
+
+            setVoiceAndSpeak(utterance, voices);
+        }
+
+        function setVoiceAndSpeak(utterance, voices) {
+            let selectedVoice = null;
+
+            if (currentLanguage === 'ar') {
+                const arabicVoiceNames = ['Microsoft Hoda', 'Google Arabic', 'ar-SA', 'ar-EG', 'Arabic'];
+
+                for (let voiceName of arabicVoiceNames) {
+                    selectedVoice = voices.find(voice => 
+                        voice.name.includes(voiceName) || voice.lang.includes('ar')
+                    );
+                    if (selectedVoice) break;
+                }
+            } else if (currentLanguage === 'fr') {
+                selectedVoice = voices.find(voice => 
+                    voice.lang.startsWith('fr') && voice.lang.includes('FR')
+                );
+            } else {
+                selectedVoice = voices.find(voice => 
+                    voice.lang.startsWith('en') && voice.lang.includes('US')
+                );
+            }
+
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
             }
 
             synthesis.speak(utterance);
         }
 
-        // ============================================
-        // CHANGEMENT DE LANGUE
-        // ============================================
         function switchLanguage(lang) {
             currentLanguage = lang;
-            
+
             document.getElementById('chatTitle').textContent = TRANSLATIONS[lang].chatTitle;
-            document.getElementById('statusText').textContent = TRANSLATIONS[lang].statusText;
+
+            const learned = getLearnedKnowledge();
+            const count = learned[lang].length;
+            document.getElementById('statusText').textContent = count > 0 ? 
+                `${TRANSLATIONS[lang].statusText.split('•')[0]}• ${count} معلومات` : 
+                TRANSLATIONS[lang].statusText;
+
             document.getElementById('userInput').placeholder = TRANSLATIONS[lang].inputPlaceholder;
-            
+
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.remove('active');
                 if (btn.dataset.lang === lang) {
@@ -888,9 +1232,6 @@
             }
         }
 
-        // ============================================
-        // ÉVÉNEMENTS CLAVIER
-        // ============================================
         document.getElementById('userInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
