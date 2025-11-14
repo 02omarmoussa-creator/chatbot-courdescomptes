@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant Cour des Comptes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .chat-container {
+            width: 100%;
+            height: 100vh;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .chat-header h1 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .lang-btn {
+            padding: 6px 12px;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .lang-btn.active {
+            background: white;
+            color: #2c3e50;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f5f5f5;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            word-wrap: break-word;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .message.user .message-content {
+            background: #3498db;
+            color: white;
+        }
+
+        .chat-input-area {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            flex-shrink: 0;
+        }
+
+        .input-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        #userInput:focus {
+            border-color: #3498db;
+        }
+
+        .btn-send {
+            padding: 10px 18px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-send:hover {
+            background: #2980b9;
+        }
+
+        .btn-voice {
+            background: #27ae60;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-voice.recording {
+            background: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 15px;
+            width: fit-content;
+        }
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #3498db;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+
+        .course-link {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .course-link:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1 id="headerTitle">Assistant Formation - Cour des Comptes</h1>
+            <div class="language-selector">
+                <button class="lang-btn active" data-lang="fr" onclick="switchLanguage('fr')">FR</button>
+                <button class="lang-btn" data-lang="ar" onclick="switchLanguage('ar')">AR</button>
+                <button class="lang-btn" data-lang="en" onclick="switchLanguage('en')">EN</button>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="typing-indicator" id="typingIndicator">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <div class="input-controls">
+                <input type="text" id="userInput" placeholder="Posez votre question..." />
+                <button class="btn-send" onclick="sendMessage()">📤</button>
+                <button class="btn-voice" id="voiceBtn" onclick="toggleVoiceRecognition()">🎤</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        const COURSE_CONFIG = {
+            courseUrl: 'http://association.courdescomptes.nat.tn:8080/course/view.php?id=28',
+            courseName: 'Formation Cour des Comptes'
+        };
+
+        // ============================================
+        // BASE DE CONNAISSANCES LOCALE
+        // ============================================
+        const KNOWLEDGE_BASE = {
+            fr: {
+                sections: [
+                    {
+                        keywords: ['programme', 'cours', 'contenu', 'modules'],
+                        response: "📚 Le cours comprend plusieurs modules de formation destinés aux officiels de la Cour des Comptes. Pour accéder au contenu complet du cours, veuillez visiter la plateforme.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['objectif', 'but', 'pourquoi'],
+                        response: "🎯 L'objectif principal est de former les officiels de la Cour des Comptes aux compétences nécessaires pour leurs fonctions d'audit et de contrôle.",
+                        showLink: false
+                    },
+                    {
+                        keywords: ['inscription', 'comment', 'accès', 'connexion'],
+                        response: "🔐 Pour vous inscrire ou accéder au cours, veuillez contacter l'administrateur de la plateforme de formation de la Cour des Comptes.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['durée', 'temps', 'période'],
+                        response: "⏱️ La durée du cours dépend du module spécifique. Veuillez consulter la page du cours pour les détails.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['certificat', 'diplôme', 'attestation'],
+                        response: "🎓 Un certificat de formation est délivré à la fin du cours après validation des acquis.",
+                        showLink: false
+                    },
+                    {
+                        keywords: ['aide', 'support', 'contact'],
+                        response: "💬 Pour toute question ou assistance, veuillez contacter l'équipe de formation de la Cour des Comptes via la plateforme.",
+                        showLink: true
+                    }
+                ]
+            },
+            ar: {
+                sections: [
+                    {
+                        keywords: ['برنامج', 'محتوى', 'دروس', 'وحدات'],
+                        response: "📚 يتضمن الدرس عدة وحدات تدريبية مخصصة لموظفي دائرة المحاسبات. للوصول إلى المحتوى الكامل، يرجى زيارة المنصة.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['هدف', 'غرض', 'لماذا'],
+                        response: "🎯 الهدف الرئيسي هو تدريب موظفي دائرة المحاسبات على المهارات اللازمة لمهام التدقيق والرقابة.",
+                        showLink: false
+                    },
+                    {
+                        keywords: ['تسجيل', 'كيف', 'دخول', 'وصول'],
+                        response: "🔐 للتسجيل أو الوصول إلى الدرس، يرجى الاتصال بمسؤول منصة التدريب بدائرة المحاسبات.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['مدة', 'وقت', 'فترة'],
+                        response: "⏱️ تعتمد مدة الدرس على الوحدة المحددة. يرجى الرجوع إلى صفحة الدرس للحصول على التفاصيل.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['شهادة', 'إفادة'],
+                        response: "🎓 يتم تسليم شهادة تدريب عند إتمام الدرس بنجاح والتحقق من المكتسبات.",
+                        showLink: false
+                    },
+                    {
+                        keywords: ['مساعدة', 'دعم', 'اتصال'],
+                        response: "💬 لأي سؤال أو مساعدة، يرجى الاتصال بفريق التدريب بدائرة المحاسبات عبر المنصة.",
+                        showLink: true
+                    }
+                ]
+            },
+            en: {
+                sections: [
+                    {
+                        keywords: ['program', 'course', 'content', 'modules'],
+                        response: "📚 The course includes several training modules designed for Court of Audit officials. To access the full content, please visit the platform.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['objective', 'goal', 'purpose', 'why'],
+                        response: "🎯 The main objective is to train Court of Audit officials in the skills necessary for their audit and control functions.",
+                        showLink: false
+                    },
+                    {
+                        keywords: ['registration', 'how', 'access', 'login'],
+                        response: "🔐 To register or access the course, please contact the administrator of the Court of Audit training platform.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['duration', 'time', 'period'],
+                        response: "⏱️ Course duration depends on the specific module. Please check the course page for details.",
+                        showLink: true
+                    },
+                    {
+                        keywords: ['certificate', 'diploma', 'attestation'],
+                        response: "🎓 A training certificate is issued upon course completion after validation of learning outcomes.",
+                        showLink: false
+                    },
+                    {
+                        keywords: ['help', 'support', 'contact'],
+                        response: "💬 For any questions or assistance, please contact the Court of Audit training team via the platform.",
+                        showLink: true
+                    }
+                ]
+            }
+        };
+
+        // ============================================
+        // TRADUCTIONS INTERFACE
+        // ============================================
+        const TRANSLATIONS = {
+            fr: {
+                headerTitle: "Assistant Formation - Cour des Comptes",
+                inputPlaceholder: "Posez votre question...",
+                welcomeMessage: "Bonjour ! Je suis votre assistant pour la formation de la Cour des Comptes. Comment puis-je vous aider ?",
+                voiceLang: "fr-FR",
+                linkText: "🔗 Accéder au cours",
+                defaultResponse: "Je n'ai pas trouvé d'information spécifique sur ce sujet. Pouvez-vous reformuler votre question ou consulter directement le cours ?"
+            },
+            ar: {
+                headerTitle: "مساعد التدريب - دائرة المحاسبات",
+                inputPlaceholder: "اطرح سؤالك...",
+                welcomeMessage: "مرحبا! أنا مساعدك للتدريب بدائرة المحاسبات. كيف يمكنني مساعدتك؟",
+                voiceLang: "ar-SA",
+                linkText: "🔗 الوصول إلى الدرس",
+                defaultResponse: "لم أجد معلومات محددة حول هذا الموضوع. هل يمكنك إعادة صياغة سؤالك أو الرجوع مباشرة إلى الدرس؟"
+            },
+            en: {
+                headerTitle: "Training Assistant - Court of Audit",
+                inputPlaceholder: "Ask your question...",
+                welcomeMessage: "Hello! I'm your assistant for the Court of Audit training. How can I help you?",
+                voiceLang: "en-US",
+                linkText: "🔗 Access course",
+                defaultResponse: "I didn't find specific information on this topic. Could you rephrase your question or consult the course directly?"
+            }
+        };
+
+        let currentLanguage = 'fr';
+        let isRecording = false;
+        let recognition = null;
+        let synthesis = window.speechSynthesis;
+
+        // ============================================
+        // INITIALISATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            displayMessage(TRANSLATIONS[currentLanguage].welcomeMessage, 'bot');
+            initializeSpeechRecognition();
+        });
+
+        // ============================================
+        // TRAITEMENT DES MESSAGES
+        // ============================================
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+
+            if (message === '') return;
+
+            displayMessage(message, 'user');
+            input.value = '';
+
+            showTypingIndicator();
+
+            setTimeout(() => {
+                const response = generateResponse(message);
+                hideTypingIndicator();
+                displayMessage(response.text, 'bot', response.showLink);
+                speakResponse(response.text);
+            }, 800);
+        }
+
+        function generateResponse(question) {
+            const lowerQuestion = question.toLowerCase();
+            const langData = KNOWLEDGE_BASE[currentLanguage];
+            
+            // Recherche par mots-clés
+            for (let section of langData.sections) {
+                for (let keyword of section.keywords) {
+                    if (lowerQuestion.includes(keyword)) {
+                        return {
+                            text: section.response,
+                            showLink: section.showLink
+                        };
+                    }
+                }
+            }
+
+            // Réponse par défaut
+            return {
+                text: TRANSLATIONS[currentLanguage].defaultResponse,
+                showLink: true
+            };
+        }
+
+        // ============================================
+        // AFFICHAGE
+        // ============================================
+        function displayMessage(message, sender, showLink = false) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = message;
+            
+            messageDiv.appendChild(contentDiv);
+            
+            if (showLink && sender === 'bot') {
+                const link = document.createElement('a');
+                link.href = COURSE_CONFIG.courseUrl;
+                link.target = '_blank';
+                link.className = 'course-link';
+                link.textContent = TRANSLATIONS[currentLanguage].linkText;
+                contentDiv.appendChild(document.createElement('br'));
+                contentDiv.appendChild(link);
+            }
+            
+            messagesContainer.insertBefore(messageDiv, document.getElementById('typingIndicator'));
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'block';
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        // ============================================
+        // RECONNAISSANCE VOCALE
+        // ============================================
+        function initializeSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = TRANSLATIONS[currentLanguage].voiceLang;
+
+                recognition.onstart = function() {
+                    isRecording = true;
+                    document.getElementById('voiceBtn').classList.add('recording');
+                };
+
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    document.getElementById('userInput').value = transcript;
+                    sendMessage();
+                };
+
+                recognition.onend = function() {
+                    isRecording = false;
+                    document.getElementById('voiceBtn').classList.remove('recording');
+                };
+            } else {
+                document.getElementById('voiceBtn').style.display = 'none';
+            }
+        }
+
+        function toggleVoiceRecognition() {
+            if (!recognition) return;
+
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.lang = TRANSLATIONS[currentLanguage].voiceLang;
+                recognition.start();
+            }
+        }
+
+        // ============================================
+        // SYNTHÈSE VOCALE
+        // ============================================
+        function speakResponse(text) {
+            if (!synthesis) return;
+
+            synthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = TRANSLATIONS[currentLanguage].voiceLang;
+            utterance.rate = 0.9;
+
+            const voices = synthesis.getVoices();
+            const preferredVoice = voices.find(voice => 
+                voice.lang.startsWith(currentLanguage)
+            );
+            
+            if (preferredVoice) {
+                utterance.voice = preferredVoice;
+            }
+
+            synthesis.speak(utterance);
+        }
+
+        // ============================================
+        // CHANGEMENT DE LANGUE
+        // ============================================
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            
+            document.getElementById('headerTitle').textContent = TRANSLATIONS[lang].headerTitle;
+            document.getElementById('userInput').placeholder = TRANSLATIONS[lang].inputPlaceholder;
+            
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.lang === lang) {
+                    btn.classList.add('active');
+                }
+            });
+
+            if (lang === 'ar') {
+                document.documentElement.setAttribute('dir', 'rtl');
+            } else {
+                document.documentElement.setAttribute('dir', 'ltr');
+            }
+
+            if (recognition) {
+                recognition.lang = TRANSLATIONS[lang].voiceLang;
+            }
+        }
+
+        // ============================================
+        // ÉVÉNEMENTS CLAVIER
+        // ============================================
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
